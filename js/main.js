@@ -4,7 +4,6 @@
 // Time：2019.02.16
 //----------------------------------------------------------------*/
 
-
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
@@ -78,20 +77,10 @@ birds[2].src = "assets/bird_03.png";
 birds[3] = new Image();
 birds[3].src = "assets/bird_04.png";
 
-var lastTime = 0;
-var score = 0;
-var obs = [];
-
 var RUNNING = 0;
 var PAUSE = 1;
 var WAITING = 2;
 var GAME_OVER = 3;
-
-var STATE = WAITING;
-
-var firstRunning = true;
-var skyCanMove = true;
-var mouseCanControl = true;
 
 var cop = new Icon(100, 135, 188, 170, copyright, 0);
 var rep = new Icon(149, 376, 115, 70, replay, 0);
@@ -102,7 +91,16 @@ var bird = new Bird(70, 250, 34, 24, birds, 50, 0.8, 8, 1, 4);
 
 var control = new Control();
 
+var STATE;
+var lastTime;
+var score;
+var obs = [];
+var firstRunning;
+var skyCanMove;
+var mouseCanControl;
+
 window.onload = function () {
+    setup();
     control.start();
 };
 
@@ -119,7 +117,7 @@ function Control() {
                     bird.stepDown();
                     bird.outOfBounds();
 
-                    obstacleEnter(3000, 3500);
+                    obstacleEnter(3000, 280);
                     paintObstacle();
                     stepObstacle();
                     checkHit();
@@ -134,6 +132,7 @@ function Control() {
 
                     cop.paint(ctx);
                     bird.paint(ctx);
+                    lastTime = new Date().getTime();
                     break;
 
                 case PAUSE:
@@ -356,25 +355,27 @@ function isActionTime(lastTime, interval) {
 }
 
 function obstacleEnter(firstAppearTime, interval) {
-
+    var check = random(0, 1);
     if (firstRunning) {
         if (!isActionTime(lastTime, firstAppearTime)) {
             return;
         }
         lastTime = new Date().getTime();
         firstRunning = false;
+
+        obs[obs.length] = new Obstacle(764, 100, 52, 26, pipe, 100, 0, check ? random(100, 230)
+            : random(100, 140));
+        obs[obs.length] = new Obstacle(764, 575, 52, 26, pipe, 100, 1, check ? random(100, 140)
+            : random(100, 230));
     }
 
-    if (!isActionTime(lastTime, interval)) {
-        return;
+    if (obs[obs.length - 1].x <= 764 - interval)
+    {
+        obs[obs.length] = new Obstacle(764, 100, 52, 26, pipe, 100, 0, check ? random(100, 230)
+            : random(100, 140));
+        obs[obs.length] = new Obstacle(764, 575, 52, 26, pipe, 100, 1, check ? random(100, 140)
+            : random(100, 230));
     }
-    lastTime = new Date().getTime();
-
-    var check = random(0, 1);
-    obs[obs.length] = new Obstacle(764, 100, 52, 26, pipe, 100, 0, check ? random(100, 230)
-        : random(100, 140));
-    obs[obs.length] = new Obstacle(764, 575, 52, 26, pipe, 100, 1, check ? random(100, 140)
-        : random(100, 230));
 
 }
 
@@ -558,7 +559,7 @@ function setup() {
     skyCanMove = true;
     mouseCanControl = true;
 
-    lastTime = 0;
+    lastTime = new Date().getTime();
     score = 0;
     obs = [];
 }
