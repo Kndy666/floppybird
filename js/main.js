@@ -87,7 +87,7 @@ var rep = new Icon(149, 376, 115, 70, replay, 0);
 var pause = new Icon(1160, 115, 121, 124, pause_Img, 0);
 var scoreBoard = new Icon(85, 175, 236, 280, scb, 0);
 var background = new Sky(0, 0, 1280, 720, bg, 100);
-var bird = new Bird(70, 250, 34, 24, birds, 50, 0.8, 8, 1, 4);
+var bird = new Bird(70, 250, 34, 24, birds, 40, 0.8, 8, 1, 4);
 
 var control = new Control();
 
@@ -295,6 +295,9 @@ function Obstacle(x, y, width, height, img, speed, state, length) {
     this.length = length;
     this.height = 26 + this.length;
 
+    if (this.state == 0)this.realY = this.y;
+    else this.realY = this.y - this.height;
+
     this.paint = function (ctx) {
         var tmp = this.y;
         if (this.state == 0)//Up
@@ -306,7 +309,6 @@ function Obstacle(x, y, width, height, img, speed, state, length) {
 
             obstacles[this.length] = new imageLocation(pipeDown, this.x, this.y);
             this.y = tmp;
-            this.realY = this.y;
         }
 
         if (this.state == 1)//Down
@@ -318,7 +320,6 @@ function Obstacle(x, y, width, height, img, speed, state, length) {
 
             obstacles[this.length] = new imageLocation(pipeUp, this.x, this.y);
             this.y = tmp;
-            this.realY = this.y - this.height;
         }
 
         for (var i = 0; i < obstacles.length; i++) {
@@ -362,11 +363,11 @@ function obstacleEnter(firstAppearTime, interval) {
         }
         lastTime = new Date().getTime();
         firstRunning = false;
-
         obs[obs.length] = new Obstacle(764, 100, 52, 26, pipe, 100, 0, check ? random(100, 230)
             : random(100, 140));
         obs[obs.length] = new Obstacle(764, 575, 52, 26, pipe, 100, 1, check ? random(100, 140)
             : random(100, 230));
+        checkDistance(obs.length - 1, check);
     }
 
     if (obs[obs.length - 1].x <= 764 - interval)
@@ -375,6 +376,7 @@ function obstacleEnter(firstAppearTime, interval) {
             : random(100, 140));
         obs[obs.length] = new Obstacle(764, 575, 52, 26, pipe, 100, 1, check ? random(100, 140)
             : random(100, 230));
+        checkDistance(obs.length - 1, check);
     }
 
 }
@@ -401,6 +403,17 @@ function deleteObstacle() {
         }
     }
     obs = ary;
+}
+
+function checkDistance(i, c) {
+        while (obs[i].realY - obs[i - 1].y - obs[i - 1].height <= 90)
+        {
+            obs[i - 1] = new Obstacle(764, 100, 52, 26, pipe, 100, 0, c ? random(100, 230)
+                : random(100, 140));
+            obs[i] = new Obstacle(764, 575, 52, 26, pipe, 100, 1, c ? random(100, 140)
+                : random(100, 230));
+        }
+
 }
 
 function checkHit() {
